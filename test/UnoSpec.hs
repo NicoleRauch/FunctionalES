@@ -25,7 +25,7 @@ spec = do
     let events = [
               HandsDealt [(Player 1, [DigitCard Blue Seven, DigitCard Blue Nine]), (Player 2, [DigitCard Blue Nine])]
             , GameStarted (GameStartedData 2 (DigitCard Red Seven))
-            , CardPlayed (Player 1) (DigitCard Blue Seven)
+            --, CardPlayed (Player 1) (DigitCard Blue Seven)
             ]
     let newState = foldl evolve initialState events
 
