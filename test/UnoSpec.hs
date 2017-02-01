@@ -19,13 +19,27 @@ spec = do
       --decide (StartGame (StartGameData 4 (DigitCard (Red, Seven)))) initialState `shouldBe` [GameStarted (GameStartedData 4 (DigitCard (Red, Seven)))]
 
 
+  describe "weird failures" $ do
+    it "when playing the same card multiple times" $ do
+      let ev1 = decide (StartGame 4) initialState
+      let s1 = foldl evolve initialState ev1
+      let ev2 = decide (PlayCard (Player {_playerNumber = 1}) (DigitCard Yellow Four)) s1
+      ev2 `shouldBe` [CardPlayed (Player {_playerNumber = 1}) (DigitCard Yellow Four)]
+      let s2 = foldl evolve s1 ev2
+      let ev3 = decide (PlayCard (Player {_playerNumber = 1}) (DigitCard Yellow Four)) s2
+      ev3 `shouldBe` [CardIsNotInHand (Player {_playerNumber = 1}) (DigitCard Yellow Four)]
+      let s3 = foldl evolve s2 ev3
+      let ev4 = decide (PlayCard (Player {_playerNumber = 1}) (DigitCard Yellow Four)) s3
+      ev4 `shouldBe` [CardIsNotInHand (Player {_playerNumber = 1}) (DigitCard Yellow Four)]
+
+
 
 
   describe "evolve with indirect effects" $ do
     let events = [
               HandsDealt [(Player 1, [DigitCard Blue Seven, DigitCard Blue Nine]), (Player 2, [DigitCard Blue Nine])]
             , GameStarted (GameStartedData 2 (DigitCard Red Seven))
-            --, CardPlayed (Player 1) (DigitCard Blue Seven)
+            , CardPlayed (Player 1) (DigitCard Blue Seven)
             ]
     let newState = foldl evolve initialState events
 

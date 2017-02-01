@@ -7,10 +7,10 @@ import           Data.Maybe
 import Debug.Trace
 
 data Color = Red | Green | Blue | Yellow
-  deriving (Show, Eq)
+  deriving (Show, Read, Eq)
 
 data Digit = Zero | One | Two | Three | Four | Five | Six | Seven | Eight | Nine
-  deriving (Show, Eq)
+  deriving (Show, Read, Eq)
 
 {-
 data OtherValue = Skip | DrawTwo | DrawFour
@@ -19,7 +19,7 @@ data OtherValue = Skip | DrawTwo | DrawFour
 
 data Card =
   DigitCard Color Digit
-  deriving (Show, Eq)
+  deriving (Show, Read, Eq)
 
 
 deck :: [Color] -> [Digit] -> [Card]
@@ -33,7 +33,7 @@ deck (c:cs) digits = combine c digits ++ deck cs digits
 newtype Player = Player
   { _playerNumber :: Int
   }
-  deriving (Show, Eq, Ord)
+  deriving (Show, Read, Eq, Ord)
 
 data Event =
   DeckShuffled [Card]
@@ -53,15 +53,10 @@ data GameStartedData = GameStartedData
   deriving (Show, Eq)
 
 
-data StartGameData = StartGameData
-  { _startGamePlayers :: Int
-  }
-  deriving (Show, Eq)
-
 data Command =
-  StartGame StartGameData
+  StartGame Int
   | PlayCard Player Card
-  deriving (Show, Eq)
+  deriving (Show, Read, Eq)
 
 data State = State
   { _stateRemainingStack :: [Card]
@@ -75,7 +70,7 @@ initialState :: State
 initialState = State [] Nothing M.empty Nothing
 
 decide :: Command -> State -> [Event]
-decide (StartGame (StartGameData count)) _ =
+decide (StartGame count) _ =
   let allCards = deck [Red, Green, Yellow, Blue] [Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine]
       shuffledCards = allCards -- TODO
       (handsDealt, remainingCards) = dealHands count shuffledCards
@@ -129,4 +124,7 @@ evolve state (CardPlayed player@(Player num) card) = state
                           , _stateNextPlayer = Just (Player (num+1 `rem` (M.size (_stateHands state))))
                           , _stateCardOnTable = Just card
                           }
+evolve state (InvalidCardPlayed _ _) = state
+evolve state (PlayedBeforeTurn _ _) = state
+evolve state (CardIsNotInHand _ _) = state
 

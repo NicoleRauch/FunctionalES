@@ -2,6 +2,7 @@ module CommandHandler where
 
 import Data.IORef
 
+import Uno
 
 handleCommand :: Command -> EventStore -> IO [Event]
 handleCommand command eventStore = do

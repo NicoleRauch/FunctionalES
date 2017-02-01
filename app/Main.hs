@@ -1,20 +1,21 @@
 module Main where
 
-
+import Control.Monad
 import Uno
+import CommandHandler
 
 
-loopOnce :: State -> Command -> (State, [Event])
-loopOnce state command =
-  let events = decide command state
-      -- store events
-      newState = foldr (flip evolve) state events
-  in (newState, events)
 
+main :: IO ()
 main = do
+  putStrLn "Welcome to UNO!"
+  eventStore <- newEventStore
+  forever $ do
+    putStrLn "Type a command:"
+    cmdStr <- getLine
+    let cmd = (read :: String -> Command) cmdStr
+    events <- handleCommand cmd eventStore
+    print events
 
 
-  let (newState, events) = loopOnce initialState (StartGame (StartGameData 4))
-  print newState
-  return ()
-
+-- PlayCard (Player {_playerNumber = 1}) (DigitCard Yellow Four)
