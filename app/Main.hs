@@ -16,8 +16,8 @@ main = do
   forever $ do
     putStr "Current card on table: "
     currentCardOnTable eventStore >>= print
-    putStr "Current hand: "
-    currentHand >>= print
+    -- putStr "Current hand: "
+    -- currentHand >>= print
     putStrLn "Type a command:"
     cmdStr <- getLine
     let maybeCmd = (readMaybe :: String -> Maybe Command) cmdStr

@@ -40,6 +40,7 @@ data Event =
   | HandsDealt [(Player, [Card])]
   | PlaceStack [Card]
   | GameStarted GameStartedData -- shuffles and deals, first player determined
+  | PlayerOnTurnChanged Player
   | CardPlayed Player Card
   | InvalidCardPlayed Player Card
   | PlayedBeforeTurn Player Card
@@ -77,6 +78,7 @@ decide (StartGame count) _ =
   in [ DeckShuffled shuffledCards
       , HandsDealt handsDealt
       , PlaceStack (tail remainingCards)
+      , PlayerOnTurnChanged (Player 1)
       , GameStarted (GameStartedData count (head remainingCards))
       ]
   where
@@ -91,11 +93,12 @@ decide (StartGame count) _ =
       let (cardsToDeal, remainingCards) = splitAt numberOfPlayers cards
           updatedPlayers = zipWith (\(p, hand) c ->  (p, c:hand)) players cardsToDeal
       in (updatedPlayers, remainingCards)
+
 decide (PlayCard player@(Player playerNumber) card@(DigitCard colorToPlay digitToPlay)) state =
   let maybeCardOnTable = _stateCardOnTable state
-      nextPlayer = _stateNextPlayer state
+      nextPlayer1 = _stateNextPlayer state
       handOfPlayer = M.findWithDefault [] player (_stateHands state)
-  in case (maybeCardOnTable, nextPlayer) of
+  in case (maybeCardOnTable, nextPlayer1) of
     (Just cardOnTable@(DigitCard color digit), Just (Player nextPlayerNumber)) ->
         let identicalCard = colorToPlay == color && digitToPlay == digit
             playerHasTurn = playerNumber == nextPlayerNumber
@@ -104,11 +107,15 @@ decide (PlayCard player@(Player playerNumber) card@(DigitCard colorToPlay digitT
            else if not (validCard cardOnTable card) then [InvalidCardPlayed player card]
            else if identicalCard then [CardPlayed player card]
            else if not playerHasTurn then [PlayedBeforeTurn player card]
-           else [CardPlayed player card]
+           else [CardPlayed player card, PlayerOnTurnChanged (nextPlayer player (M.size (_stateHands state)))]
 
     (_,_) -> error "Either no card or no player!!!"
 
+validCard :: Card -> Card -> Bool
 validCard (DigitCard c1 d1) (DigitCard c2 d2) = c1 == c2 || d1 == d2
+
+nextPlayer :: Player -> Int -> Player
+nextPlayer (Player num) numberOfPlayers = Player (if 1 + num > numberOfPlayers then 1 else 1 + num)
 
 -- decide _ _ = []
 
@@ -117,14 +124,13 @@ evolve state (DeckShuffled cards) = state { _stateRemainingStack = cards }
 evolve state (HandsDealt hands) = state { _stateHands = M.fromList hands }
 evolve state (PlaceStack cards) = state { _stateRemainingStack = cards }
 evolve state (GameStarted (GameStartedData num firstCard)) = state
-                          { _stateCardOnTable = Just firstCard
-                          , _stateNextPlayer = Just (Player 1) }
+                          { _stateCardOnTable = Just firstCard }
 evolve state (CardPlayed player@(Player num) card) = state
                           { _stateHands = M.update (\cards -> Just (L.delete card cards)) player (_stateHands state)
-                          , _stateNextPlayer = Just (Player (num+1 `rem` (M.size (_stateHands state))))
                           , _stateCardOnTable = Just card
                           }
 evolve state (InvalidCardPlayed _ _) = state
 evolve state (PlayedBeforeTurn _ _) = state
 evolve state (CardIsNotInHand _ _) = state
+evolve state (PlayerOnTurnChanged player) = state { _stateNextPlayer = Just player }
 
