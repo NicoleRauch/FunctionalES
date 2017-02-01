@@ -37,7 +37,7 @@ data Event =
   SeedSet Int
   | DeckShuffled [Card]
   | HandsDealt [(Player, [Card])]
-  | PlaceStack [Card]
+  | StackPlaced [Card]
   | GameStarted Int Card -- shuffles and deals, first player determined
   | PlayerOnTurnChanged Player
   | CardPlayed Player Card
@@ -72,7 +72,7 @@ decide (StartGame count) state =
       (handsDealt, remainingCards) = dealHands count shuffledCards
   in [ DeckShuffled shuffledCards
       , HandsDealt handsDealt
-      , PlaceStack (tail remainingCards)
+      , StackPlaced (tail remainingCards)
       , PlayerOnTurnChanged (Player 1)
       , GameStarted count (head remainingCards)
       ]
@@ -117,7 +117,7 @@ nextPlayer (Player num) numberOfPlayers = Player (if 1 + num > numberOfPlayers t
 evolve :: State -> Event -> State
 evolve state (DeckShuffled cards) = state { _stateRemainingStack = cards }
 evolve state (HandsDealt hands) = state { _stateHands = M.fromList hands }
-evolve state (PlaceStack cards) = state { _stateRemainingStack = cards }
+evolve state (StackPlaced cards) = state { _stateRemainingStack = cards }
 evolve state (GameStarted num firstCard) = state
                           { _stateCardOnTable = Just firstCard }
 evolve state (CardPlayed player@(Player num) card) = state
