@@ -39,18 +39,12 @@ data Event =
   DeckShuffled [Card]
   | HandsDealt [(Player, [Card])]
   | PlaceStack [Card]
-  | GameStarted GameStartedData -- shuffles and deals, first player determined
+  | GameStarted Int Card -- shuffles and deals, first player determined
   | PlayerOnTurnChanged Player
   | CardPlayed Player Card
   | InvalidCardPlayed Player Card
   | PlayedBeforeTurn Player Card
   | CardIsNotInHand Player Card
-  deriving (Show, Eq)
-
-data GameStartedData = GameStartedData
-  { _gameStartedPlayers :: Int
-  , _gameStartedFirstCard :: Card
-  }
   deriving (Show, Eq)
 
 
@@ -79,7 +73,7 @@ decide (StartGame count) _ =
       , HandsDealt handsDealt
       , PlaceStack (tail remainingCards)
       , PlayerOnTurnChanged (Player 1)
-      , GameStarted (GameStartedData count (head remainingCards))
+      , GameStarted count (head remainingCards)
       ]
   where
   numberOfCards = 7
@@ -123,7 +117,7 @@ evolve :: State -> Event -> State
 evolve state (DeckShuffled cards) = state { _stateRemainingStack = cards }
 evolve state (HandsDealt hands) = state { _stateHands = M.fromList hands }
 evolve state (PlaceStack cards) = state { _stateRemainingStack = cards }
-evolve state (GameStarted (GameStartedData num firstCard)) = state
+evolve state (GameStarted num firstCard) = state
                           { _stateCardOnTable = Just firstCard }
 evolve state (CardPlayed player@(Player num) card) = state
                           { _stateHands = M.update (\cards -> Just (L.delete card cards)) player (_stateHands state)

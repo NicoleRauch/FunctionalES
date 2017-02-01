@@ -16,13 +16,13 @@ spec = do
 
   --describe "decide" $ do
     --it "produces events from a command and the state" $ do
-      --decide (StartGame (StartGameData 4 (DigitCard (Red, Seven)))) initialState `shouldBe` [GameStarted (GameStartedData 4 (DigitCard (Red, Seven)))]
+      --decide (StartGame (StartGameData 4 (DigitCard (Red, Seven)))) initialState `shouldBe` [GameStarted 4 (DigitCard (Red, Seven))]
 
 
   describe "evolve with indirect effects" $ do
     let events = [
               HandsDealt [(Player 1, [DigitCard Blue Seven, DigitCard Blue Nine]), (Player 2, [DigitCard Blue Nine])]
-            , GameStarted (GameStartedData 2 (DigitCard Red Seven))
+            , GameStarted 2 (DigitCard Red Seven)
             , CardPlayed (Player 1) (DigitCard Blue Seven)
             , PlayerOnTurnChanged (Player 2)
             ]
@@ -43,7 +43,7 @@ spec = do
     it "You can play the exact same card at any time" $ do
       let events2 = [
                 HandsDealt [(Player 1, [DigitCard Blue Seven, DigitCard Blue Seven]), (Player 2, [DigitCard Blue Nine])]
-              , GameStarted (GameStartedData 2 (DigitCard Red Seven))
+              , GameStarted 2 (DigitCard Red Seven)
               , CardPlayed (Player 1) (DigitCard Blue Seven)
               , PlayerOnTurnChanged (Player 2)
               ]
@@ -56,7 +56,7 @@ spec = do
       let events = [
                 HandsDealt [(Player 1, [DigitCard Blue Seven]), (Player 2, [DigitCard Blue Seven])]
               , PlayerOnTurnChanged (Player 1)
-              , GameStarted (GameStartedData 2 (DigitCard Red Seven))
+              , GameStarted 2 (DigitCard Red Seven)
               ]
       let newState = foldl evolve initialState events
       let command = PlayCard (Player 1) (DigitCard Blue Seven)
@@ -66,7 +66,7 @@ spec = do
       let events = [
                 HandsDealt [(Player 1, [DigitCard Blue Seven]), (Player 2, [DigitCard Blue Seven])]
               , PlayerOnTurnChanged (Player 1)
-              , GameStarted (GameStartedData 2 (DigitCard Red Seven))
+              , GameStarted 2 (DigitCard Red Seven)
               , PlayerOnTurnChanged (Player 2)
               ]
       let newState = foldl evolve initialState events
@@ -77,7 +77,7 @@ spec = do
       let events = [
                 HandsDealt [(Player 1, [DigitCard Blue Seven]), (Player 2, [DigitCard Blue Seven])]
               , PlayerOnTurnChanged (Player 1)
-              , GameStarted (GameStartedData 2 (DigitCard Red Seven))
+              , GameStarted 2 (DigitCard Red Seven)
               , PlayerOnTurnChanged (Player 2)
               , PlayerOnTurnChanged (Player 1)
               ]

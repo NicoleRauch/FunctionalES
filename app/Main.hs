@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Monad
+import Data.Foldable
 import Text.Read
 
 import CommandHandler
@@ -16,8 +17,12 @@ main = do
   forever $ do
     putStr "Current card on table: "
     currentCardOnTable eventStore >>= print
-    -- putStr "Current hand: "
-    -- currentHand >>= print
+    putStr "Current Player: "
+    player <- currentPlayer eventStore
+    print player
+    for_ player $ \p -> do
+      putStr "Current hand: "
+      currentHand p eventStore >>= print
     putStrLn "Type a command:"
     cmdStr <- getLine
     let maybeCmd = (readMaybe :: String -> Maybe Command) cmdStr

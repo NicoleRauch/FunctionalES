@@ -15,6 +15,7 @@ currentCardOnTable :: EventStore -> IO (Maybe Card)
 currentCardOnTable = project cardOnTable Nothing
 
 cardOnTable :: Maybe Card -> Event -> Maybe Card
+cardOnTable _ (GameStarted _ card) = Just card
 cardOnTable _ (CardPlayed _ card) = Just card
 cardOnTable currentCard _ = currentCard
 
@@ -28,5 +29,9 @@ cardsInHand player cards (CardPlayed byPlayer cardBeingPlayed)
   | player == byPlayer = L.delete cardBeingPlayed cards
 cardsInHand _ cards _ = cards
 
--- playerOnTurn :: Maybe Player -> Event -> Maybe Player
--- playerOnTurn
+currentPlayer :: EventStore -> IO (Maybe Player)
+currentPlayer = project playerOnTurn Nothing
+
+playerOnTurn :: Maybe Player -> Event -> Maybe Player
+playerOnTurn _ (PlayerOnTurnChanged player) = Just player
+playerOnTurn player _ = player
