@@ -32,6 +32,13 @@ main = do
           events <- handleCommand cmd eventStore
           print events
 
-
--- PlayCard (Player 1) (DigitCard Yellow Four)
--- PlayCard (Player 2) (DigitCard Yellow Five)
+{-
+PlayCard (Player 1) (DigitCard Yellow Four)
+PlayCard (Player 2) (DigitCard Yellow Five)
+PlayCard (Player 3) (DigitCard Yellow Six)
+PlayCard (Player 4) (DigitCard Yellow Seven)
+PlayCard (Player 1) (DigitCard Yellow Zero)
+PlayCard (Player 2) (DigitCard Yellow One)
+PlayCard (Player 3) (DigitCard Yellow Two)
+PlayCard (Player 4) (DigitCard Yellow Three)
+-}
