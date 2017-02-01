@@ -2,6 +2,7 @@ module Main where
 
 import Control.Monad
 import Data.Foldable
+import qualified System.Random as R
 import Text.Read
 
 import CommandHandler
@@ -14,6 +15,8 @@ main :: IO ()
 main = do
   putStrLn "Welcome to UNO!"
   eventStore <- newEventStore
+  seed <- R.randomIO :: IO Int
+  handleCommand (SetSeed seed) eventStore
   forever $ do
     putStr "Current card on table: "
     currentCardOnTable eventStore >>= print

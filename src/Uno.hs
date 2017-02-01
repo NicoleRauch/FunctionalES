@@ -2,6 +2,8 @@ module Uno where
 
 import qualified Data.Map.Strict as M
 import qualified Data.List as L
+import qualified System.Random as R
+import qualified System.Random.Shuffle as R
 import           Data.Maybe
 
 data Color = Red | Green | Blue | Yellow
@@ -32,7 +34,8 @@ newtype Player = Player Int
   deriving (Show, Read, Eq, Ord)
 
 data Event =
-  DeckShuffled [Card]
+  SeedSet Int
+  | DeckShuffled [Card]
   | HandsDealt [(Player, [Card])]
   | PlaceStack [Card]
   | GameStarted Int Card -- shuffles and deals, first player determined
@@ -45,12 +48,14 @@ data Event =
 
 
 data Command =
-  StartGame Int
+  SetSeed Int
+  | StartGame Int
   | PlayCard Player Card
   deriving (Show, Read, Eq)
 
 data State = State
-  { _stateRemainingStack :: [Card]
+  { _stateSeed :: Int
+  , _stateRemainingStack :: [Card]
   , _stateCardOnTable :: Maybe Card
   , _stateHands :: M.Map Player [Card]
   , _stateNextPlayer :: Maybe Player
@@ -58,12 +63,12 @@ data State = State
   deriving (Show, Eq)
 
 initialState :: State
-initialState = State [] Nothing M.empty Nothing
+initialState = State 7 [] Nothing M.empty Nothing
 
 decide :: Command -> State -> [Event]
-decide (StartGame count) _ =
+decide (StartGame count) state =
   let allCards = deck [Red, Green, Yellow, Blue] [Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine]
-      shuffledCards = allCards -- TODO
+      shuffledCards = R.shuffle' allCards (length allCards) (R.mkStdGen (_stateSeed state))
       (handsDealt, remainingCards) = dealHands count shuffledCards
   in [ DeckShuffled shuffledCards
       , HandsDealt handsDealt
@@ -101,6 +106,8 @@ decide (PlayCard player@(Player playerNumber) card@(DigitCard colorToPlay digitT
 
     (_,_) -> error "Either no card or no player!!!"
 
+decide (SetSeed seed) state = [SeedSet seed]
+
 validCard :: Card -> Card -> Bool
 validCard (DigitCard c1 d1) (DigitCard c2 d2) = c1 == c2 || d1 == d2
 
@@ -121,4 +128,5 @@ evolve state (InvalidCardPlayed _ _) = state
 evolve state (PlayedBeforeTurn _ _) = state
 evolve state (CardIsNotInHand _ _) = state
 evolve state (PlayerOnTurnChanged player) = state { _stateNextPlayer = Just player }
+evolve state (SeedSet seed) = state { _stateSeed = seed }
 

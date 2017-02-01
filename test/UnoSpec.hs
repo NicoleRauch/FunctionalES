@@ -139,31 +139,31 @@ spec = do
 
     it "a card with the same color as the card on table is valid if the player is the next one" $ do
       let hands = (M.fromList [(Player 1, [DigitCard Red Nine]), (Player 2, [])])
-      let state = State remainingStack cardOnTable hands nextPlayer
+      let state = State 7 remainingStack cardOnTable hands nextPlayer
       decide (PlayCard (Player 1) (DigitCard Red Nine)) state `shouldBe` [CardPlayed (Player 1) (DigitCard Red Nine), PlayerOnTurnChanged (Player 2)]
 
     it "a card with the same value as the card on table is valid if the player is the next one" $ do
       let hands = (M.fromList [(Player 1, [DigitCard Blue Seven]), (Player 2, [])])
-      let state = State remainingStack cardOnTable hands nextPlayer
+      let state = State 7 remainingStack cardOnTable hands nextPlayer
       decide (PlayCard (Player 1) (DigitCard Blue Seven)) state `shouldBe` [CardPlayed (Player 1) (DigitCard Blue Seven), PlayerOnTurnChanged (Player 2)]
 
     it "a card with a different value and color as the card on table is invalid even if the player is the next one" $ do
       let hands = (M.fromList [(Player 1, [DigitCard Yellow Nine]), (Player 2, [])])
-      let state = State remainingStack cardOnTable hands nextPlayer
+      let state = State 7 remainingStack cardOnTable hands nextPlayer
       decide (PlayCard (Player 1) (DigitCard Yellow Nine)) state `shouldBe` [InvalidCardPlayed (Player 1) (DigitCard Yellow Nine)]
 
     it "a card with the same value and color as the card on table is valid even if the player is not the next one" $ do
       let hands = (M.fromList [(Player 1, [DigitCard Yellow Nine]), (Player 2, [DigitCard Red Seven])])
-      let state = State remainingStack cardOnTable hands nextPlayer
+      let state = State 7 remainingStack cardOnTable hands nextPlayer
       decide (PlayCard (Player 2) (DigitCard Red Seven)) state `shouldBe` [CardPlayed (Player 2) (DigitCard Red Seven)]
 
     it "a different card may not be played by any player other than the next one" $ do
       let hands = (M.fromList [(Player 1, [DigitCard Yellow Nine]), (Player 2, [DigitCard Red Eight])])
-      let state = State remainingStack cardOnTable hands nextPlayer
+      let state = State 7 remainingStack cardOnTable hands nextPlayer
       decide (PlayCard (Player 2) (DigitCard Red Eight)) state `shouldBe` [PlayedBeforeTurn (Player 2) (DigitCard Red Eight)]
 
     it "a card is invalid if the player does not have it in his hand" $ do
       let hands = (M.fromList [(Player 1, [DigitCard Yellow Nine]), (Player 2, [])])
-      let state = State remainingStack cardOnTable hands nextPlayer
+      let state = State 7 remainingStack cardOnTable hands nextPlayer
       decide (PlayCard (Player 1) (DigitCard Red Eight)) state `shouldBe` [CardIsNotInHand (Player 1) (DigitCard Red Eight)]
 
