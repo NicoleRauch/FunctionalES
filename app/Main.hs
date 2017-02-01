@@ -33,5 +33,5 @@ main = do
           print events
 
 
--- PlayCard (Player {_playerNumber = 1}) (DigitCard Yellow Four)
--- PlayCard (Player {_playerNumber = 2}) (DigitCard Yellow Five)
+-- PlayCard (Player 1) (DigitCard Yellow Four)
+-- PlayCard (Player 2) (DigitCard Yellow Five)

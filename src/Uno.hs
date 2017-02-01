@@ -30,9 +30,7 @@ deck (c:cs) digits = combine c digits ++ deck cs digits
     combine _ [] = []
     combine c (d:ds) = DigitCard c d : combine c ds
 
-newtype Player = Player
-  { _playerNumber :: Int
-  }
+newtype Player = Player Int
   deriving (Show, Read, Eq, Ord)
 
 data Event =
