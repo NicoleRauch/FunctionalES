@@ -4,8 +4,6 @@ import qualified Data.Map.Strict as M
 import qualified Data.List as L
 import           Data.Maybe
 
-import Debug.Trace
-
 data Color = Red | Green | Blue | Yellow
   deriving (Show, Read, Eq)
 
@@ -108,8 +106,6 @@ validCard (DigitCard c1 d1) (DigitCard c2 d2) = c1 == c2 || d1 == d2
 
 nextPlayer :: Player -> Int -> Player
 nextPlayer (Player num) numberOfPlayers = Player (if 1 + num > numberOfPlayers then 1 else 1 + num)
-
--- decide _ _ = []
 
 evolve :: State -> Event -> State
 evolve state (DeckShuffled cards) = state { _stateRemainingStack = cards }
